@@ -4,6 +4,6 @@
  * and open the template in the editor.
  */
 @TemplateRegistration(folder = "Other", content = "hfdTemplate.hfd")
-package org.emoreira;
+package net.emoreira.hfd;
 
 import org.netbeans.api.templates.TemplateRegistration;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.emoreira;
+package net.emoreira.hfd;
 
 import java.io.IOException;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -31,7 +31,7 @@ import org.openide.windows.TopComponent;
 )
 @DataObject.Registration(
         mimeType = "application/hdf+xml",
-        iconBase = "org/emoreira/HFD.png",
+        iconBase = "net/emoreira/hfd/HFD.png",
         displayName = "#LBL_hfd_LOADER",
         position = 300
 )
@@ -87,9 +87,9 @@ import org.openide.windows.TopComponent;
             position = 1400
     )
 })
-public class hfdDataObject extends MultiDataObject {
+public class HFDDataObject extends MultiDataObject {
 
-    public hfdDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+    public HFDDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("application/hdf+xml", true);
     }
@@ -101,7 +101,7 @@ public class hfdDataObject extends MultiDataObject {
 
 //    @MultiViewElement.Registration(
 //            displayName = "#LBL_hfd_EDITOR",
-//            iconBase = "org/emoreira/HFD.png",
+//            iconBase = "net/emoreira/hfd/HFD.png",
 //            mimeType = "application/hdf+xml",
 //            persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
 //            preferredID = "hfd",

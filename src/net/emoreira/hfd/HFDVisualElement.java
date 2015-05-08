@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.emoreira;
+package net.emoreira.hfd;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -19,27 +19,28 @@ import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_hfd_VISUAL",
-        iconBase = "org/emoreira/HFD.png",
+        iconBase = "net/emoreira/hfd/HFD.png",
         mimeType = "application/hdf+xml",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "hfdVisual",
         position = 2000
 )
 @Messages("LBL_hfd_VISUAL=Visual")
-public final class hfdVisualElement extends JPanel implements MultiViewElement {
+public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
-    private hfdDataObject obj;
+    private HFDDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
 
-    public hfdVisualElement(Lookup lkp) {
-        obj = lkp.lookup(hfdDataObject.class);
+    public HFDVisualElement(Lookup lkp) {
+        obj = lkp.lookup(HFDDataObject.class);
         assert obj != null;
         initComponents();
     }
 
     @Override
     public String getName() {
+        obj.get
         return "hfdVisualElement";
     }
 
@@ -87,7 +88,7 @@ public final class hfdVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public void componentOpened() {
-        //example of
+        //example of naming the component in bold face
         callback.getTopComponent().setHtmlDisplayName("<html><body><strong>"+obj.getName()+"</strong></body></html>");
     }
 
