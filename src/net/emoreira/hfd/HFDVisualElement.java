@@ -40,7 +40,6 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public String getName() {
-        obj.get
         return "hfdVisualElement";
     }
 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://xml.hfd.emoreira.net" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:hfd="http://xml.hfd.emoreira.net">
+
+
+
+    <include schemaLocation=""></include>
+    <include schemaLocation=""></include>
+    <include schemaLocation=""></include>
+    <complexType name="interface">
+    	<sequence></sequence>
+        <attribute name="id" type="ID" use="optional"></attribute>
+        <attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="signature" type="string" use="required"></attribute>
+    </complexType>
+
+    <complexType name="component">
+    	<sequence>
+    		<element name="providedInterface" type="hfd:interface"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="requiredInterface" type="hfd:interface"
+    			minOccurs="0" maxOccurs="unbounded">
+    		</element>
+            <element name="shortDescription" type="string" minOccurs="0" maxOccurs="1"></element>
+            <element name="longDescription" type="string" minOccurs="0" maxOccurs="1"></element>
+    	</sequence>
+    	<attribute name="id" type="ID" use="optional"></attribute>
+    	<attribute name="name" type="string" use="required"></attribute>
+    </complexType>
+
+    <complexType name="subarch">
+    	<sequence>
+    		<element name="component" type="hfd:component" minOccurs="0"
+    			maxOccurs="unbounded">
+    		</element>
+    	</sequence>
+    	<attribute name="id" type="ID" use="optional"></attribute>
+    	<attribute name="name" type="string" use="required"></attribute>
+        <attribute name="model" type="string" use="optional"></attribute>
+        <attribute name="host" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="binding">
+    	<attribute name="serverInterface" type="IDREF" use="required"></attribute>
+    	<attribute name="clientInterface" type="IDREF" use="required"></attribute>
+    	<attribute name="protocol" type="string" use="optional"></attribute>
+    </complexType>
+
+
+
+    <complexType name="catalog">
+    	<sequence>
+    		<element name="component" type="hfd:component" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+
+
+
+
+    <complexType name="architecture">
+    	<sequence>
+    		<element name="subarch" type="hfd:subarch" minOccurs="0" maxOccurs="unbounded"></element>
+    		<element name="binding" type="hfd:binding" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+
+
+    <complexType name="hfd">
+    	<sequence>
+    		<element name="catalog" type="hfd:catalog" minOccurs="1" maxOccurs="1"></element>
+            <element name="architecture" type="hfd:architecture" minOccurs="1" maxOccurs="1"></element>
+    	</sequence>
+    </complexType>
+
+    <element name="hfd" type="hfd:hfd"></element>
+
+</schema>
