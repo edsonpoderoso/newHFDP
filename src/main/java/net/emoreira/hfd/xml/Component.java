@@ -11,6 +11,7 @@ package net.emoreira.hfd.xml;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -236,11 +237,27 @@ public class Component {
     public void setParent(Subarch parent){
         this.parent = Optional.fromNullable(parent);
     }
-
-//    public void afterUnmarshal(Object target, Object parent) {;;
-//        for(Interface p:providedInterface){
-//            p.
-//        }
-//    }
+    
+    
+    /**
+     * Configura o parent do objeto no Unmarshalling (Apenas Subarch deve ser 
+     * considerado parent de um componente). Posteriormente ele configura as 
+     * interfaces do componente apropriadamente como providas ou requeridas pois
+     * o processo de Unmarshalling não pode realizar essa operação sozinho com a
+     * estrutura do XML adotado.
+     * @param unmarshaller
+     * @param parent 
+     */
+    public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+        if(parent instanceof Subarch){
+            setParent((Subarch) parent);
+        }
+        for(Interface p:providedInterface){
+            p.setProvidedInterface();
+        }
+        for(Interface r:requiredInterface){
+            r.setRequiredInterface();
+        }
+    }
 
 }

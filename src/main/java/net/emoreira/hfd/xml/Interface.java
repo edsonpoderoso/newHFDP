@@ -128,16 +128,41 @@ public class Interface {
         return parent;
     }
 
+    /**
+     * Verifica se a interface é do tipo provida
+     *
+     * @return true se a interace for provida, falso em qualquer outro caso.
+     */
     public boolean isProvidedInterface() {
         return InterfaceType.provided.equals(type);
     }
 
+    /**
+     * Verifica se a interface é do tipo requerida
+     *
+     * @return true se a interace for requerida, falso em qualquer outro caso.
+     */
     public boolean isRequiredInterface() {
         return InterfaceType.required.equals(type);
     }
 
     /**
-     * Define o objeto pai da interface.
+     * Define a interface como requerida
+     */
+    protected void setRequiredInterface() {
+        type = InterfaceType.required;
+    }
+
+    /**
+     * Define a interface como provida
+     */
+    protected void setProvidedInterface() {
+        type = InterfaceType.provided;
+    }
+
+    /**
+     * Registra o objeto pai da interface após o seu Unmarshalling.
+     * Este método não deve ser chamado pelo usuário.
      *
      * @param unmarshaller the {@link Unmarshaller} of this object
      * @param parent the parent of this object on the object tree. Allowed
@@ -146,14 +171,50 @@ public class Interface {
     public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
         if (parent != null && parent instanceof Component) {
             this.parent = (Component) parent;
-        } else {
-            parent = null;
         }
     }
 
     private enum InterfaceType {
+
         provided,
         required;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 37 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 37 * hash + (this.signature != null ? this.signature.hashCode() : 0);
+        hash = 37 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 37 * hash + (this.parent != null ? this.parent.hashCode() : 0);
+        return hash;
+    }
+
+    /**
+     *
+     * @param obj
+     * @return
+     */
+    public boolean matchesForConnection(Interface obj) {
+        if (obj == null) {
+            return false;
+        }
+        final Interface other = obj;
+        if ((this.id == null) ? (other.id != null) : this.id.equals(other.id)) {
+            return false;
+        }
+        //Até onde sei não tem problema os nomes das interfaces serem diferentes.
+//        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+//            return false;
+//        }
+        if (((this.signature == null) || (other.signature == null)) || !this.signature.equals(other.signature)) {
+            return false;
+        }
+        if ((this.type == null || other.type == null) || (this.type != other.type)) {
+            return false;
+        }
+        return !((this.parent == null) || (other.parent == null));
     }
 
 }
