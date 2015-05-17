@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://xml.hfd.emoreira.net" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:hfd="http://xml.hfd.emoreira.net">
 
-
-
-    <include schemaLocation=""></include>
-    <include schemaLocation=""></include>
-    <include schemaLocation=""></include>
     <complexType name="interface">
     	<sequence></sequence>
         <attribute name="id" type="ID" use="optional"></attribute>
@@ -46,16 +41,11 @@
     	<attribute name="protocol" type="string" use="optional"></attribute>
     </complexType>
 
-
-
     <complexType name="catalog">
     	<sequence>
     		<element name="component" type="hfd:component" minOccurs="0" maxOccurs="unbounded"></element>
     	</sequence>
     </complexType>
-
-
-
 
     <complexType name="architecture">
     	<sequence>
@@ -64,14 +54,13 @@
     	</sequence>
     </complexType>
 
-
-    <complexType name="hfd">
-    	<sequence>
-    		<element name="catalog" type="hfd:catalog" minOccurs="1" maxOccurs="1"></element>
-            <element name="architecture" type="hfd:architecture" minOccurs="1" maxOccurs="1"></element>
-    	</sequence>
-    </complexType>
-
-    <element name="hfd" type="hfd:hfd"></element>
-
+    <element name="hfd">
+    	<complexType>
+    		<sequence>
+    			<element name="catalog" type="hfd:catalog"
+    				minOccurs="1" maxOccurs="1">
+    			</element>
+    			<element name="architecture" type="hfd:architecture" minOccurs="1" maxOccurs="1"></element>
+    		</sequence>
+    	</complexType></element>
 </schema>

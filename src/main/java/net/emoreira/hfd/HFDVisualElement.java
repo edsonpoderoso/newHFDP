@@ -5,16 +5,28 @@
  */
 package net.emoreira.hfd;
 
+import net.emoreira.hfd.xml.XMLModule;
+import com.google.common.base.Optional;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import java.io.OutputStream;
+import java.util.List;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import net.emoreira.hfd.xml.Catalog;
+import net.emoreira.hfd.xml.Component;
+import net.emoreira.hfd.xml.Hfd;
+import net.emoreira.hfd.xml.Interface;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.IOProvider;
+import org.openide.windows.OutputWriter;
 import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
@@ -31,8 +43,14 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     private HFDDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
+    private Injector injector;
+    private Hfd hfd;
+    private FileHandler fileHandler;
 
     public HFDVisualElement(Lookup lkp) {
+        injector = Guice.createInjector(new HFDServiceModule(),
+                                        new XMLModule());
+        fileHandler = injector.getInstance(FileHandler.class);
         obj = lkp.lookup(HFDDataObject.class);
         assert obj != null;
         initComponents();
@@ -89,6 +107,12 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     public void componentOpened() {
         //example of naming the component in bold face
         callback.getTopComponent().setHtmlDisplayName("<html><body><strong>"+obj.getName()+"</strong></body></html>");
+        Optional<Hfd> temp = fileHandler.readFile(obj.getPrimaryFile());
+        if(temp.isPresent()){
+            hfd = temp.get();
+            rundownTest();
+        }
+        fileHandler.writeFile(hfd, obj.getPrimaryFile());
     }
 
     @Override
@@ -124,6 +148,11 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
+    }
+    
+    private void rundownTest(){
+        OutputWriter ow = IOProvider.getDefault().getStdOut();
+        ow.print(hfd.toString());
     }
 
 }

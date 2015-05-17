@@ -15,7 +15,7 @@ public class HFDServiceModule extends AbstractModule{
 
     @Override
     protected void configure() {
-        bind(FileHandler.class).to(XmlFileHandler.class);
+        
     }
     
 }

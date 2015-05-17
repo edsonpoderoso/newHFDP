@@ -2,10 +2,8 @@
 // Este arquivo foi gerado pela Arquitetura JavaTM para Implementação de Referência (JAXB) de Bind XML, v2.2.8-b130911.1802 
 // Consulte <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
-// Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
+// Gerado em: 2015.05.16 às 08:04:36 PM GMT-03:00 
 //
-
-
 package net.emoreira.hfd.xml;
 
 import java.util.ArrayList;
@@ -14,12 +12,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Classe Java de catalog complex type.
- * 
- * <p>O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro desta classe.
- * 
+ * <p>
+ * Classe Java de catalog complex type.
+ *
+ * <p>
+ * O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro
+ * desta classe.
+ *
  * <pre>
  * &lt;complexType name="catalog">
  *   &lt;complexContent>
@@ -31,8 +31,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "catalog", propOrder = {
@@ -44,25 +44,25 @@ public class Catalog {
 
     /**
      * Gets the value of the component property.
-     * 
+     *
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the component property.
-     * 
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the component property.
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getComponent().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Component }
-     * 
-     * 
+     *
+     *
      */
     public List<Component> getComponent() {
         if (component == null) {
@@ -71,4 +71,18 @@ public class Catalog {
         return this.component;
     }
 
+    public String toString() {
+        StringBuilder buffer = new StringBuilder("\n"
+                + "Catalog" + "\n");
+        StringBuilder compoentnBuffer;
+        compoentnBuffer = new StringBuilder("Components:\n");
+        if (component != null) {
+            for (Component comp : component) {
+                compoentnBuffer.append(component.toString());
+            }
+        }
+        buffer.append(compoentnBuffer.toString().replaceAll("\n", "\n\t"));
+        buffer.append("End of Catalog \n");
+        return buffer.toString();
+    }
 }

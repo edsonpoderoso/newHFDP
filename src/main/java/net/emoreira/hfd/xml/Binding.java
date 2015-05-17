@@ -4,8 +4,6 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-
-
 package net.emoreira.hfd.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,12 +13,14 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Classe Java de binding complex type.
- * 
- * <p>O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro desta classe.
- * 
+ * <p>
+ * Classe Java de binding complex type.
+ *
+ * <p>
+ * O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro
+ * desta classe.
+ *
  * <pre>
  * &lt;complexType name="binding">
  *   &lt;complexContent>
@@ -32,8 +32,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "binding")
@@ -52,11 +52,9 @@ public class Binding {
 
     /**
      * Obtém o valor da propriedade serverInterface.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Object }
-     *     
+     *
+     * @return possible object is {@link Object }
+     *
      */
     public Object getServerInterface() {
         return serverInterface;
@@ -64,11 +62,9 @@ public class Binding {
 
     /**
      * Define o valor da propriedade serverInterface.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Object }
-     *     
+     *
+     * @param value allowed object is {@link Object }
+     *
      */
     public void setServerInterface(Object value) {
         this.serverInterface = value;
@@ -76,11 +72,9 @@ public class Binding {
 
     /**
      * Obtém o valor da propriedade clientInterface.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Object }
-     *     
+     *
+     * @return possible object is {@link Object }
+     *
      */
     public Object getClientInterface() {
         return clientInterface;
@@ -88,11 +82,9 @@ public class Binding {
 
     /**
      * Define o valor da propriedade clientInterface.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Object }
-     *     
+     *
+     * @param value allowed object is {@link Object }
+     *
      */
     public void setClientInterface(Object value) {
         this.clientInterface = value;
@@ -100,11 +92,9 @@ public class Binding {
 
     /**
      * Obtém o valor da propriedade protocol.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getProtocol() {
         return protocol;
@@ -112,14 +102,21 @@ public class Binding {
 
     /**
      * Define o valor da propriedade protocol.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setProtocol(String value) {
         this.protocol = value;
+    }
+
+    public String toString() {
+        StringBuilder buffer = new StringBuilder("\n"
+                + "Binding" + "\n"
+                + (serverInterface == null ? "serverInterface: null" : "serverInterface: " + this.serverInterface) + "\n"
+                + (clientInterface == null ? "clientInterface: null" : "clientInterface: " + this.clientInterface) + "\n"
+                + (protocol == null ? "protocol: null" : "protocol: " + this.protocol) + "\n");
+        return buffer.toString();
     }
 
 }

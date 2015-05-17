@@ -4,8 +4,6 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-
-
 package net.emoreira.hfd.xml;
 
 import com.google.common.base.Optional;
@@ -22,12 +20,14 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
- * <p>Classe Java de component complex type.
- * 
- * <p>O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro desta classe.
- * 
+ * <p>
+ * Classe Java de component complex type.
+ *
+ * <p>
+ * O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro
+ * desta classe.
+ *
  * <pre>
  * &lt;complexType name="component">
  *   &lt;complexContent>
@@ -44,8 +44,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "component", propOrder = {
@@ -70,25 +70,25 @@ public class Component {
 
     /**
      * Gets the value of the providedInterface property.
-     * 
+     *
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the providedInterface property.
-     * 
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the providedInterface property.
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getProvidedInterface().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Interface }
-     * 
-     * 
+     *
+     *
      */
     public List<Interface> getProvidedInterface() {
         if (providedInterface == null) {
@@ -99,25 +99,25 @@ public class Component {
 
     /**
      * Gets the value of the requiredInterface property.
-     * 
+     *
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the requiredInterface property.
-     * 
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the requiredInterface property.
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getRequiredInterface().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Interface }
-     * 
-     * 
+     *
+     *
      */
     public List<Interface> getRequiredInterface() {
         if (requiredInterface == null) {
@@ -128,11 +128,9 @@ public class Component {
 
     /**
      * Obtém o valor da propriedade shortDescription.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getShortDescription() {
         return shortDescription;
@@ -140,11 +138,9 @@ public class Component {
 
     /**
      * Define o valor da propriedade shortDescription.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setShortDescription(String value) {
         this.shortDescription = value;
@@ -152,11 +148,9 @@ public class Component {
 
     /**
      * Obtém o valor da propriedade longDescription.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getLongDescription() {
         return longDescription;
@@ -164,11 +158,9 @@ public class Component {
 
     /**
      * Define o valor da propriedade longDescription.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setLongDescription(String value) {
         this.longDescription = value;
@@ -176,11 +168,9 @@ public class Component {
 
     /**
      * Obtém o valor da propriedade id.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getId() {
         return id;
@@ -188,11 +178,9 @@ public class Component {
 
     /**
      * Define o valor da propriedade id.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setId(String value) {
         this.id = value;
@@ -200,11 +188,9 @@ public class Component {
 
     /**
      * Obtém o valor da propriedade name.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getName() {
         return name;
@@ -212,16 +198,14 @@ public class Component {
 
     /**
      * Define o valor da propriedade name.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setName(String value) {
         this.name = value;
     }
-    
+
     @XmlTransient
     private Optional<Subarch> parent;
 
@@ -230,34 +214,64 @@ public class Component {
      *
      * @return possible object is {@link Subarch}
      */
-    public Optional<Subarch> getParent(){
+    public Optional<Subarch> getParent() {
         return parent;
     }
-    
-    public void setParent(Subarch parent){
+
+    public void setParent(Subarch parent) {
         this.parent = Optional.fromNullable(parent);
     }
-    
-    
+
     /**
-     * Configura o parent do objeto no Unmarshalling (Apenas Subarch deve ser 
-     * considerado parent de um componente). Posteriormente ele configura as 
+     * Configura o parent do objeto no Unmarshalling (Apenas Subarch deve ser
+     * considerado parent de um componente). Posteriormente ele configura as
      * interfaces do componente apropriadamente como providas ou requeridas pois
      * o processo de Unmarshalling não pode realizar essa operação sozinho com a
      * estrutura do XML adotado.
+     *
      * @param unmarshaller
-     * @param parent 
+     * @param parent
      */
     public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
-        if(parent instanceof Subarch){
+        if (parent instanceof Subarch) {
             setParent((Subarch) parent);
+        } else {
+            setParent(null);
         }
-        for(Interface p:providedInterface){
-            p.setProvidedInterface();
-        }
-        for(Interface r:requiredInterface){
-            r.setRequiredInterface();
-        }
+//        for(Interface p:providedInterface){
+//            p.setProvidedInterface();
+//        }
+//        for(Interface r:requiredInterface){
+//            r.setRequiredInterface();
+//        }
     }
 
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer("\n"
+                + "Component" + "\n"
+                + (id == null ? "id: null" : "id: " + this.id) + "\n"
+                + (name == null ? "name: null" : "name: " + this.name) + "\n"
+                + (longDescription == null ? "longDescription: null" : "longDescription: " + this.longDescription) + "\n"
+                + (shortDescription == null ? "shortDescription: null" : "shortDescription: " + this.shortDescription) + "\n"
+                + (!parent.isPresent() ? "parent: absent" : "parent: present") + "\n");
+        StringBuffer interfaceBuffer;
+        interfaceBuffer = new StringBuffer("Provided Interfaces:\n");
+        if (providedInterface != null) {
+            for (Interface inter : providedInterface) {
+                interfaceBuffer.append(inter.toString());
+            }
+        }
+        buffer.append(interfaceBuffer.toString().replaceAll("\n", "\n\t"));
+
+        interfaceBuffer = new StringBuffer("Required Interfaces:\n");
+        if (requiredInterface != null) {
+            for (Interface inter : requiredInterface) {
+                interfaceBuffer.append(inter.toString());
+            }
+        }
+        buffer.append(interfaceBuffer.toString().replaceAll("\n", "\n\t"));
+        buffer.append("End of Component \n");
+        return buffer.toString();
+    }
 }

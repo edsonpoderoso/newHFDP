@@ -4,8 +4,6 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-
-
 package net.emoreira.hfd.xml;
 
 import java.util.ArrayList;
@@ -19,12 +17,14 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 /**
- * <p>Classe Java de subarch complex type.
- * 
- * <p>O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro desta classe.
- * 
+ * <p>
+ * Classe Java de subarch complex type.
+ *
+ * <p>
+ * O seguinte fragmento do esquema especifica o conteúdo esperado contido dentro
+ * desta classe.
+ *
  * <pre>
  * &lt;complexType name="subarch">
  *   &lt;complexContent>
@@ -40,8 +40,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "subarch", propOrder = {
@@ -64,25 +64,25 @@ public class Subarch {
 
     /**
      * Gets the value of the component property.
-     * 
+     *
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the component property.
-     * 
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the component property.
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getComponent().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Component }
-     * 
-     * 
+     *
+     *
      */
     public List<Component> getComponent() {
         if (component == null) {
@@ -93,11 +93,9 @@ public class Subarch {
 
     /**
      * Obtém o valor da propriedade id.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getId() {
         return id;
@@ -105,11 +103,9 @@ public class Subarch {
 
     /**
      * Define o valor da propriedade id.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setId(String value) {
         this.id = value;
@@ -117,11 +113,9 @@ public class Subarch {
 
     /**
      * Obtém o valor da propriedade name.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getName() {
         return name;
@@ -129,11 +123,9 @@ public class Subarch {
 
     /**
      * Define o valor da propriedade name.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setName(String value) {
         this.name = value;
@@ -141,11 +133,9 @@ public class Subarch {
 
     /**
      * Obtém o valor da propriedade model.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getModel() {
         return model;
@@ -153,11 +143,9 @@ public class Subarch {
 
     /**
      * Define o valor da propriedade model.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setModel(String value) {
         this.model = value;
@@ -165,11 +153,9 @@ public class Subarch {
 
     /**
      * Obtém o valor da propriedade host.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getHost() {
         return host;
@@ -177,14 +163,29 @@ public class Subarch {
 
     /**
      * Define o valor da propriedade host.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setHost(String value) {
         this.host = value;
     }
 
+    public String toString() {
+        StringBuilder buffer = new StringBuilder("\n"
+                + "Subarch" + "\n"
+                + (id == null ? "id: null" : "id: " + this.id) + "\n"
+                + (name == null ? "name: null" : "name: " + this.name) + "\n"
+                + (model == null ? "model: null" : "model: " + this.model) + "\n"
+                + (host == null ? "host: null" : "host: " + this.host) + "\n");
+        StringBuilder compoentnBuffer = new StringBuilder("Components\n");
+        if (component != null) {
+            for (Component comp : component) {
+                compoentnBuffer.append(component.toString());
+            }
+        }
+        buffer.append(compoentnBuffer.toString().replaceAll("\n", "\n\t"));
+        buffer.append("End of Subarch \n");
+        return buffer.toString();
+    }
 }

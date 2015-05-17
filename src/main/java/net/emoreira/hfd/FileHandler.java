@@ -5,10 +5,15 @@
  */
 package net.emoreira.hfd;
 
+import com.google.common.base.Optional;
+import net.emoreira.hfd.xml.Hfd;
+import org.openide.filesystems.FileObject;
+
 /**
  *
  * @author edson.moreira
  */
 public interface FileHandler {
-    
+    public Optional<Hfd> readFile(FileObject fileObject);
+    public boolean writeFile(Hfd obj, FileObject fileObject);
 }

@@ -217,4 +217,18 @@ public class Interface {
         return !((this.parent == null) || (other.parent == null));
     }
 
+    @Override
+    public String toString() {
+        return ("\n"+
+                "Interface"+ "\n"+
+                (id == null?"id: null": "id: " + this.id) + "\n"+
+                (name == null?"name: null": "name: " + this.name) + "\n"+
+                (signature == null?"signature: null": "signature: " + this.signature) + "\n"+
+                (type == null?"type: null": "type: " + this.type) + "\n"+
+                (parent == null?"parent: null": "parent: present")+ "\n"+
+                "end of Interface \n");    
+    }
+    
+    
+
 }
