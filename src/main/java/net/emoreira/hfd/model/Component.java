@@ -4,9 +4,11 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import com.google.common.base.Optional;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.Unmarshaller;
@@ -40,6 +42,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}ID" />
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="x" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       &lt;attribute name="y" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       &lt;attribute name="width" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       &lt;attribute name="height" type="{http://www.w3.org/2001/XMLSchema}int" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -54,7 +60,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
     "shortDescription",
     "longDescription"
 })
-public class Component {
+public final class Component implements HFDStageElement {
 
     protected List<Interface> providedInterface;
     protected List<Interface> requiredInterface;
@@ -67,6 +73,41 @@ public class Component {
     protected String id;
     @XmlAttribute(name = "name", required = true)
     protected String name;
+    @XmlAttribute(name = "x")
+    protected Integer x;
+    @XmlAttribute(name = "y")
+    protected Integer y;
+    @XmlAttribute(name = "width")
+    protected Integer width;
+    @XmlAttribute(name = "height")
+    protected Integer height;
+
+    public Component() {
+    }
+
+    /**
+     * This is a safe copy mechanism for the class component. It doesn't copy Id
+     * so it is JAXB Safety and it doesn't copy parent so it's modeling safe.
+     *
+     * @param aComponent the component to be copied.
+     */
+    public Component(Component aComponent) {
+        this.name = aComponent.name;
+        this.x = new Integer(aComponent.x);
+        this.y = new Integer(aComponent.y);
+        this.width = new Integer(aComponent.width);
+        this.height = new Integer(aComponent.height);
+        List<Interface> thisProv = this.getProvidedInterface();
+        List<Interface> aCompProv = aComponent.getProvidedInterface();
+        for (Interface i : aCompProv) {
+            thisProv.add(new Interface(i));
+        }
+        List<Interface> thisReq = this.getRequiredInterface();
+        List<Interface> aCompReq = aComponent.getRequiredInterface();
+        for (Interface i : aCompReq) {
+            thisReq.add(new Interface(i));
+        }
+    }
 
     /**
      * Gets the value of the providedInterface property.
@@ -206,6 +247,86 @@ public class Component {
         this.name = value;
     }
 
+    /**
+     * Obtém o valor da propriedade x.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public Integer getX() {
+        return x;
+    }
+
+    /**
+     * Define o valor da propriedade x.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setX(Integer value) {
+        this.x = value;
+    }
+
+    /**
+     * Obtém o valor da propriedade y.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public Integer getY() {
+        return y;
+    }
+
+    /**
+     * Define o valor da propriedade y.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setY(Integer value) {
+        this.y = value;
+    }
+
+    /**
+     * Obtém o valor da propriedade width.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public Integer getWidth() {
+        return width;
+    }
+
+    /**
+     * Define o valor da propriedade width.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setWidth(Integer value) {
+        this.width = value;
+    }
+
+    /**
+     * Obtém o valor da propriedade height.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public Integer getHeight() {
+        return height;
+    }
+
+    /**
+     * Define o valor da propriedade height.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setHeight(Integer value) {
+        this.height = value;
+    }
+
     @XmlTransient
     private Optional<Subarch> parent;
 
@@ -238,12 +359,18 @@ public class Component {
         } else {
             setParent(null);
         }
-//        for(Interface p:providedInterface){
-//            p.setProvidedInterface();
-//        }
-//        for(Interface r:requiredInterface){
-//            r.setRequiredInterface();
-//        }
+        //Let's have a test drive
+        if (providedInterface != null) {
+            for (Interface p : providedInterface) {
+                p.setProvidedInterface();
+            }
+        }
+        if (requiredInterface != null) {
+            for (Interface r : requiredInterface) {
+                r.setRequiredInterface();
+            }
+        }
+
     }
 
     @Override
@@ -252,6 +379,10 @@ public class Component {
                 + "Component" + "\n"
                 + (id == null ? "id: null" : "id: " + this.id) + "\n"
                 + (name == null ? "name: null" : "name: " + this.name) + "\n"
+                + (x == null ? "x: null" : "x: " + this.x) + "\n"
+                + (y == null ? "y: null" : "y: " + this.y) + "\n"
+                + (width == null ? "width: null" : "width: " + this.width) + "\n"
+                + (height == null ? "height: null" : "height: " + this.height) + "\n"
                 + (longDescription == null ? "longDescription: null" : "longDescription: " + this.longDescription) + "\n"
                 + (shortDescription == null ? "shortDescription: null" : "shortDescription: " + this.shortDescription) + "\n"
                 + (!parent.isPresent() ? "parent: absent" : "parent: present") + "\n");
@@ -263,6 +394,7 @@ public class Component {
             }
         }
         buffer.append(interfaceBuffer.toString().replaceAll("\n", "\n\t"));
+        buffer.append("\n");
 
         interfaceBuffer = new StringBuffer("Required Interfaces:\n");
         if (requiredInterface != null) {
@@ -271,7 +403,66 @@ public class Component {
             }
         }
         buffer.append(interfaceBuffer.toString().replaceAll("\n", "\n\t"));
+        buffer.append("\n");
         buffer.append("End of Component \n");
         return buffer.toString();
+    }
+
+    @Override
+    public boolean isComponent() {
+        return true;
+    }
+
+    @Override
+    public boolean isSubarch() {
+        return false;
+    }
+
+    @Override
+    public Component asComponent() {
+        return this;
+    }
+
+    @Override
+    public Subarch asSubarch() {
+        throw new UnsupportedOperationException("This HFDStageElement is not a Subarch.");
+    }
+
+    @Override
+    public Optional<Point> getPosition() {
+        if (x != null && y != null) {
+            return Optional.of(new Point(x, y));
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    @Override
+    public void setPosition(Point p) {
+        if (p != null) {
+            x = (int) p.getX();
+            y = (int) p.getY();
+        } else {
+            throw new IllegalArgumentException("Component.setPosition(Point p) doesn't accept null");
+        }
+    }
+
+    @Override
+    public Optional<Dimension> getDimension() {
+        if (width != null && height != null) {
+            return Optional.of(new Dimension(width, height));
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    @Override
+    public void setDimension(Dimension d) {
+        if (d != null) {
+            width = (int) d.getWidth();
+            height = (int) d.getHeight();
+        } else {
+            throw new IllegalArgumentException("Component.setDimension(Dimension d) doesn't accept null");
+        }
     }
 }

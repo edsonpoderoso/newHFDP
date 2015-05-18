@@ -17,6 +17,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import net.emoreira.hfd.FileHandler;
 import net.emoreira.hfd.guice.JaxbHfdContext;
+import net.emoreira.hfd.model.Hfd;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -41,6 +42,7 @@ public class XMLFileHandler implements FileHandler{
         }
         if(marshaller == null){
             marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         }
         if(unmarshaller == null){
             unmarshaller = jc.createUnmarshaller();

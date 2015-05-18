@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://xml.hfd.emoreira.net", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;

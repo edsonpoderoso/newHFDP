@@ -4,7 +4,7 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "binding")
-public class Binding {
+public final class Binding {
 
     @XmlAttribute(name = "serverInterface", required = true)
     @XmlIDREF

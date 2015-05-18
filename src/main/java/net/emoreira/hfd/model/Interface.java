@@ -4,7 +4,7 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -43,7 +43,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "interface")
-public class Interface {
+public final class Interface {
 
     @XmlAttribute(name = "id")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -59,6 +59,22 @@ public class Interface {
     @XmlTransient
     private Component parent;
 
+    public Interface() {
+    }
+    
+    /**
+     * This is a safe copy mechanism for the class Interface.
+     * It doesn't copy Id so it is JAXB Safety and it doesn't copy parent so
+     * it's modeling safe.
+     * 
+     * @param anInterface 
+     */
+    public Interface(Interface anInterface) {
+        this.name = anInterface.name;
+        this.signature = anInterface.signature;
+        this.type = anInterface.type;
+    }
+    
     /**
      * Obtém o valor da propriedade id.
      *
@@ -175,7 +191,6 @@ public class Interface {
     }
 
     private enum InterfaceType {
-
         provided,
         required;
     }
@@ -226,7 +241,7 @@ public class Interface {
                 (signature == null?"signature: null": "signature: " + this.signature) + "\n"+
                 (type == null?"type: null": "type: " + this.type) + "\n"+
                 (parent == null?"parent: null": "parent: present")+ "\n"+
-                "end of Interface \n");    
+                "End of Interface \n");    
     }
     
     

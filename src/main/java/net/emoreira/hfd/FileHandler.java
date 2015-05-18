@@ -6,7 +6,7 @@
 package net.emoreira.hfd;
 
 import com.google.common.base.Optional;
-import net.emoreira.hfd.xml.Hfd;
+import net.emoreira.hfd.model.Hfd;
 import org.openide.filesystems.FileObject;
 
 /**

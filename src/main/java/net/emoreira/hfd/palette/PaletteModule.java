@@ -3,21 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.palette;
 
 import com.google.inject.AbstractModule;
-import net.emoreira.hfd.FileHandler;
-import net.emoreira.hfd.guice.JaxbHfdContext;
 
 /**
  *
  * @author edson
  */
-public class XMLModule extends AbstractModule{
+public class PaletteModule extends AbstractModule{
 
     @Override
     protected void configure() {
-        bind(FileHandler.class).to(XMLFileHandler.class);
-        bind(String.class).annotatedWith(JaxbHfdContext.class).toInstance("net.emoreira.hfd.model");
     }
 }

@@ -9,22 +9,30 @@ import net.emoreira.hfd.xml.XMLModule;
 import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.io.OutputStream;
-import java.util.List;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import net.emoreira.hfd.xml.Catalog;
-import net.emoreira.hfd.xml.Component;
-import net.emoreira.hfd.xml.Hfd;
-import net.emoreira.hfd.xml.Interface;
+import net.emoreira.hfd.model.Architecture;
+import net.emoreira.hfd.model.Catalog;
+import net.emoreira.hfd.model.Hfd;
+import net.emoreira.hfd.palette.CategoryNodeFactory;
+import net.emoreira.hfd.palette.HfdPaletteActions;
+import net.emoreira.hfd.palette.PaletteModule;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.spi.palette.PaletteController;
+import org.netbeans.spi.palette.PaletteFactory;
 import org.openide.awt.UndoRedo;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.IOProvider;
 import org.openide.windows.OutputWriter;
 import org.openide.windows.TopComponent;
@@ -45,15 +53,30 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     private transient MultiViewElementCallback callback;
     private Injector injector;
     private Hfd hfd;
+    private Catalog catalog;
+    private Architecture architecture;
     private FileHandler fileHandler;
+    private boolean modified;
+    private Node paletteRootNode;
+    private InstanceContent localLookupContent;
+    private AbstractLookup localLookup;
 
     public HFDVisualElement(Lookup lkp) {
         injector = Guice.createInjector(new HFDServiceModule(),
-                                        new XMLModule());
+                new XMLModule(),
+                new PaletteModule());
         fileHandler = injector.getInstance(FileHandler.class);
         obj = lkp.lookup(HFDDataObject.class);
         assert obj != null;
         initComponents();
+        LookupInit();
+    }
+
+    private void LookupInit() {
+        if (localLookup == null) {
+            localLookupContent = new InstanceContent();
+            localLookup = new AbstractLookup(localLookupContent);
+        }
     }
 
     @Override
@@ -95,24 +118,32 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public Action[] getActions() {
-        return new Action[0];
+        return callback.createDefaultActions();
     }
 
     @Override
     public Lookup getLookup() {
-        return obj.getLookup();
+        return new ProxyLookup(new Lookup[]{
+            obj.getLookup(),
+            localLookup, //TO ADD Stage lookup
+        });
     }
 
     @Override
     public void componentOpened() {
         //example of naming the component in bold face
-        callback.getTopComponent().setHtmlDisplayName("<html><body><strong>"+obj.getName()+"</strong></body></html>");
+        callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
+
+        //Read the Hfd file to the Hfd object;
         Optional<Hfd> temp = fileHandler.readFile(obj.getPrimaryFile());
-        if(temp.isPresent()){
+        if (temp.isPresent()) {
             hfd = temp.get();
-            rundownTest();
+            catalog = hfd.getCatalog();
+            architecture = hfd.getArchitecture();
+            this.initPalette();
+        } else {
+            //TODO stop loading this component.
         }
-        fileHandler.writeFile(hfd, obj.getPrimaryFile());
     }
 
     @Override
@@ -149,10 +180,30 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
     }
-    
-    private void rundownTest(){
+
+    private void rundownTest() {
         OutputWriter ow = IOProvider.getDefault().getStdOut();
         ow.print(hfd.toString());
+    }
+
+    private void setModified(boolean modified) {
+        this.modified = modified;
+        AdjustEditorNameApperance();
+        //TODO create a savable
+    }
+
+    private void AdjustEditorNameApperance() {
+        if (modified) {
+            callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
+        } else {
+            callback.getTopComponent().setHtmlDisplayName("<html><body>" + obj.getName() + "</body></html>");
+        }
+    }
+
+    private void initPalette() {
+        paletteRootNode = new AbstractNode(Children.create(new CategoryNodeFactory(catalog), true));
+        PaletteController palette = PaletteFactory.createPalette(paletteRootNode, new HfdPaletteActions());
+        localLookupContent.add(palette);
     }
 
 }

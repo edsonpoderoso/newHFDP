@@ -6,7 +6,7 @@
 //
 
 
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import javax.xml.bind.annotation.XmlRegistry;
 

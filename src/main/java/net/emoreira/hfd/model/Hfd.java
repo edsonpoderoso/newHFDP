@@ -4,7 +4,7 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.16 às 08:04:36 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -41,7 +41,7 @@ import javax.xml.bind.annotation.XmlType;
     "architecture"
 })
 @XmlRootElement(name = "hfd")
-public class Hfd {
+public final class Hfd {
 
     @XmlElement(required = true)
     protected Catalog catalog;

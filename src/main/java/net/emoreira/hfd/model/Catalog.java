@@ -4,7 +4,7 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.16 às 08:04:36 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "catalog", propOrder = {
     "component"
 })
-public class Catalog {
+public final class Catalog {
 
     protected List<Component> component;
 

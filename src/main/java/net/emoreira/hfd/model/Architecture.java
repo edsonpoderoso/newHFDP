@@ -4,7 +4,7 @@
 // Todas as modificações neste arquivo serão perdidas após a recompilação do esquema de origem. 
 // Gerado em: 2015.05.12 às 05:35:34 PM GMT-03:00 
 //
-package net.emoreira.hfd.xml;
+package net.emoreira.hfd.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
     "subarch",
     "binding"
 })
-public class Architecture {
+public final class Architecture {
 
     protected List<Subarch> subarch;
     protected List<Binding> binding;

@@ -16,11 +16,19 @@
     		<element name="requiredInterface" type="hfd:interface"
     			minOccurs="0" maxOccurs="unbounded">
     		</element>
-            <element name="shortDescription" type="string" minOccurs="0" maxOccurs="1"></element>
-            <element name="longDescription" type="string" minOccurs="0" maxOccurs="1"></element>
+    		<element name="shortDescription" type="string" minOccurs="0"
+    			maxOccurs="1">
+    		</element>
+    		<element name="longDescription" type="string" minOccurs="0"
+    			maxOccurs="1">
+    		</element>
     	</sequence>
     	<attribute name="id" type="ID" use="optional"></attribute>
     	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="x" type="int" use="optional"></attribute>
+    	<attribute name="y" type="int" use="optional"></attribute>
+    	<attribute name="width" type="int" use="optional"></attribute>
+    	<attribute name="height" type="int" use="optional"></attribute>
     </complexType>
 
     <complexType name="subarch">
@@ -31,8 +39,12 @@
     	</sequence>
     	<attribute name="id" type="ID" use="optional"></attribute>
     	<attribute name="name" type="string" use="required"></attribute>
-        <attribute name="model" type="string" use="optional"></attribute>
-        <attribute name="host" type="string" use="optional"></attribute>
+    	<attribute name="model" type="string" use="optional"></attribute>
+    	<attribute name="host" type="string" use="optional"></attribute>
+    	<attribute name="x" type="int" use="optional"></attribute>
+    	<attribute name="y" type="int" use="optional"></attribute>
+    	<attribute name="width" type="int" use="optional"></attribute>
+    	<attribute name="height" type="int" use="optional"></attribute>
     </complexType>
 
     <complexType name="binding">
