@@ -91,21 +91,29 @@ public final class Component implements HFDStageElement {
      *
      * @param aComponent the component to be copied.
      */
+    
+    @SuppressWarnings("LeakingThisInConstructor")
     public Component(Component aComponent) {
         this.name = aComponent.name;
-        this.x = new Integer(aComponent.x);
-        this.y = new Integer(aComponent.y);
-        this.width = new Integer(aComponent.width);
-        this.height = new Integer(aComponent.height);
+        //values should be reboxed
+        this.x = aComponent.x == null? null: new Integer(aComponent.x);
+        this.y = aComponent.y == null? null: new Integer(aComponent.y);
+        this.width = aComponent.width == null? null: new Integer(aComponent.width);
+        this.height = aComponent.height == null? null: new Integer(aComponent.height);
         List<Interface> thisProv = this.getProvidedInterface();
         List<Interface> aCompProv = aComponent.getProvidedInterface();
         for (Interface i : aCompProv) {
-            thisProv.add(new Interface(i));
+            Interface n = new Interface(i);
+            thisProv.add(n);
+            n.setParent(this);//should not do any work beyond saving a reference
+            
         }
         List<Interface> thisReq = this.getRequiredInterface();
         List<Interface> aCompReq = aComponent.getRequiredInterface();
         for (Interface i : aCompReq) {
-            thisReq.add(new Interface(i));
+            Interface n = new Interface(i);
+            thisReq.add(n);
+            n.setParent(this);//should not do any work beyond saving a reference
         }
     }
 
@@ -328,7 +336,7 @@ public final class Component implements HFDStageElement {
     }
 
     @XmlTransient
-    private Optional<Subarch> parent;
+    private Optional<Subarch> parent = Optional.absent();
 
     /**
      * Obtem o valor da propriedade parent (Só é válida já na arquitetura).

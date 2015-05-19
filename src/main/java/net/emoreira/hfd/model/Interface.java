@@ -189,6 +189,11 @@ public final class Interface {
             this.parent = (Component) parent;
         }
     }
+    
+    protected void setParent(Component parent){
+        this.parent = parent;
+    }
+            
 
     private enum InterfaceType {
         provided,
@@ -226,7 +231,7 @@ public final class Interface {
         if (((this.signature == null) || (other.signature == null)) || !this.signature.equals(other.signature)) {
             return false;
         }
-        if ((this.type == null || other.type == null) || (this.type != other.type)) {
+        if ((this.type == null || other.type == null) || (this.type == other.type)) {
             return false;
         }
         return !((this.parent == null) || (other.parent == null));

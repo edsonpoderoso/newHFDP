@@ -16,9 +16,16 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.openide.ErrorManager;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
+import org.openide.nodes.Sheet;
 
 /**
  * <p>
@@ -361,4 +368,41 @@ public final class Subarch implements HFDStageElement{
             throw new IllegalArgumentException("Subarch.setDimension(Dimension d) doesn't accept null");
         }
     }
+    
+    //begin property window support
+    @XmlTransient
+    public Node getNode() {
+        return node;
+    }
+    
+    @XmlTransient
+    private final Subarch subArch = this;
+    
+    @XmlTransient
+    private final Node node = new AbstractNode(Children.LEAF) {
+
+        @Override
+        protected Sheet createSheet() {
+            Sheet sheet = Sheet.createDefault();
+            Sheet.Set set = Sheet.createPropertiesSet();
+            set.setName("SubArchitecture Properties");
+            try {
+                Node.Property nameProp = new PropertySupport.Reflection(subArch, String.class, "getName", "setName");
+                Node.Property modeloProp = new PropertySupport.Reflection(subArch, String.class, "getModel", "setModel");
+                Node.Property ipProp = new PropertySupport.Reflection(subArch, String.class, "getHost", "setHost");
+                nameProp.setName("Name");
+                modeloProp.setName("Model");
+                ipProp.setName("Host");
+                set.put(nameProp);
+                set.put(modeloProp);
+                set.put(ipProp);
+            } catch (NoSuchMethodException ex) {
+                ErrorManager.getDefault();
+            }
+            sheet.put(set);
+            return sheet;
+        }
+
+    };
+    //end of property window support
 }

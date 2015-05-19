@@ -9,19 +9,28 @@ import net.emoreira.hfd.xml.XMLModule;
 import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.io.IOException;
+import java.util.List;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import net.emoreira.hfd.model.Architecture;
+import net.emoreira.hfd.model.Binding;
 import net.emoreira.hfd.model.Catalog;
+import net.emoreira.hfd.model.Component;
 import net.emoreira.hfd.model.Hfd;
+import net.emoreira.hfd.model.Subarch;
 import net.emoreira.hfd.palette.CategoryNodeFactory;
 import net.emoreira.hfd.palette.HfdPaletteActions;
 import net.emoreira.hfd.palette.PaletteModule;
+import net.emoreira.hfd.stage.Stage;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.spi.actions.AbstractSavable;
 import org.netbeans.spi.palette.PaletteController;
 import org.netbeans.spi.palette.PaletteFactory;
 import org.openide.awt.UndoRedo;
@@ -49,17 +58,31 @@ import org.openide.windows.TopComponent;
 public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     private HFDDataObject obj;
-    private JToolBar toolbar = new JToolBar();
+    private final JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
-    private Injector injector;
+    private final Injector injector;
     private Hfd hfd;
     private Catalog catalog;
     private Architecture architecture;
-    private FileHandler fileHandler;
+    private final FileHandler fileHandler;
     private boolean modified;
     private Node paletteRootNode;
     private InstanceContent localLookupContent;
     private AbstractLookup localLookup;
+    private JComponent sceneView;
+    private final Stage stage = new Stage();
+    
+    private final ChangeListener cl = new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            stage.validate();
+            sceneView.repaint();
+            if (getLookup().lookup(MySavable.class) == null) {
+                localLookupContent.add(new MySavable());
+            }
+        }
+    };
+    private UndoRedo undoRedo;
 
     public HFDVisualElement(Lookup lkp) {
         injector = Guice.createInjector(new HFDServiceModule(),
@@ -79,6 +102,29 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
         }
     }
 
+    private void initEngineComponents() {
+        sceneView = stage.createView();
+        jScrollPane1.setViewportView(sceneView);
+    }
+
+    public void setDocumentOnScene() {
+
+        List<Subarch> subArchs = architecture.getSubarch();
+        List<Binding> bindings = architecture.getBinding();
+        for (Subarch s : subArchs) {
+            stage.myAddNode(s);
+            List<Component> components = s.getComponent();
+            for (Component c : components) {
+                stage.myAddNode(c);
+            }
+        }
+
+        for (Binding b : bindings) {
+            stage.myAddEdge(b);
+        }
+        stage.ready();
+    }
+
     @Override
     public String getName() {
         return "hfdVisualElement";
@@ -92,19 +138,22 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     @Override
     public JComponent getVisualRepresentation() {
@@ -124,8 +173,9 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     @Override
     public Lookup getLookup() {
         return new ProxyLookup(new Lookup[]{
-            obj.getLookup(),
-            localLookup, //TO ADD Stage lookup
+            //obj.getLookup(),
+            localLookup,
+            stage.getLookup()
         });
     }
 
@@ -141,6 +191,11 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
             catalog = hfd.getCatalog();
             architecture = hfd.getArchitecture();
             this.initPalette();
+            initEngineComponents();
+            setDocumentOnScene();
+            undoRedo = stage.getUndoRedo();
+            undoRedo.addChangeListener(cl);
+            stage.setCallback(callback);
         } else {
             //TODO stop loading this component.
         }
@@ -148,6 +203,11 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public void componentClosed() {
+        MySavable s = localLookup.lookup(MySavable.class);
+        if (s != null) {
+            localLookupContent.remove(s);
+            s.disable();
+        }
     }
 
     @Override
@@ -168,7 +228,7 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public UndoRedo getUndoRedo() {
-        return UndoRedo.NONE;
+        return undoRedo;
     }
 
     @Override
@@ -191,7 +251,9 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
         AdjustEditorNameApperance();
         //TODO create a savable
     }
-
+    
+    
+    
     private void AdjustEditorNameApperance() {
         if (modified) {
             callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
@@ -199,11 +261,98 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
             callback.getTopComponent().setHtmlDisplayName("<html><body>" + obj.getName() + "</body></html>");
         }
     }
-
+    
+    /**
+     * Initializes the side palette
+     */
     private void initPalette() {
         paletteRootNode = new AbstractNode(Children.create(new CategoryNodeFactory(catalog), true));
         PaletteController palette = PaletteFactory.createPalette(paletteRootNode, new HfdPaletteActions());
         localLookupContent.add(palette);
     }
+    
+    private class MySavable extends AbstractSavable {
 
+        MySavable() {
+            super();
+            register();
+        }
+
+        @Override
+        protected String findDisplayName() {
+            return obj.getName() +"."+ obj.getPrimaryFile().getExt();
+        }
+
+        @Override
+        protected void handleSave() throws IOException {
+//            Set<?> elements = sc.getObjects();
+//            Set<Subarch> subArchs = new HashSet<>();
+//            Set<Component> components = new HashSet<>();
+//            Set<Binding> connections = new HashSet<>();
+//            for (Object e : elements) {
+//                if (e instanceof Subarch) {
+//                    subArchs.add((Subarch) e);
+//                    continue;
+//                }
+//                if (e instanceof Component) {
+//                    components.add((Component) e);
+//                    continue;
+//                }
+//                if (e instanceof Binding) {
+//                    connections.add((Binding) e);
+//                }
+//            }
+//            document.getComponent().clear();
+//            document.getSubarchitecture().clear();
+//            document.getConnection().clear();
+//            
+//            document.getComponent().addAll(components);
+//            document.getSubarchitecture().addAll(subArchs);
+//            document.getConnection().addAll(connections);
+//
+//            FileObject file = obj.getPrimaryFile();
+//            FileLock lock = null;
+//            OutputStream os = null;
+//            try {
+//                lock = file.lock();
+//                os = obj.getPrimaryFile().getOutputStream(lock);
+//                Marshaller m = jaxbArchitechtureContext.createMarshaller();
+//                m.marshal(document, os);
+//                IOProvider.getDefault().getStdOut().println("Salvou!");
+//            } catch (JAXBException ex) {
+//                Exceptions.printStackTrace(ex);
+//            } catch (IOException ex) {
+//                Exceptions.printStackTrace(ex);
+//            } finally {
+//                if (os != null) {
+//                    os.close();
+//                }
+//                if (lock != null) {
+//                    lock.releaseLock();
+//                }
+//            }
+            HFDVisualElement.this.localLookupContent.remove(this);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof MySavable) {
+                return ((MySavable) o).mve() == this.mve();
+            }
+            return false;
+        }
+
+        private HFDVisualElement mve() {
+            return HFDVisualElement.this;
+        }
+
+        @Override
+        public int hashCode() {
+            return mve().hashCode();
+        }
+
+        private void disable() {
+            unregister();
+        }
+    }
 }

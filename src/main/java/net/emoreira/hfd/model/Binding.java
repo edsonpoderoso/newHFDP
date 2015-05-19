@@ -6,12 +6,23 @@
 //
 package net.emoreira.hfd.model;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.openide.ErrorManager;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
+import org.openide.nodes.Sheet;
 
 /**
  * <p>
@@ -108,15 +119,60 @@ public final class Binding {
      */
     public void setProtocol(String value) {
         this.protocol = value;
+        fireChangeHappenned();
     }
 
     public String toString() {
-        StringBuilder buffer = new StringBuilder("\n"
+        String buffer = "\n"
                 + "Binding" + "\n"
                 + (serverInterface == null ? "serverInterface: null" : "serverInterface: " + this.serverInterface) + "\n"
                 + (clientInterface == null ? "clientInterface: null" : "clientInterface: " + this.clientInterface) + "\n"
-                + (protocol == null ? "protocol: null" : "protocol: " + this.protocol) + "\n");
-        return buffer.toString();
+                + (protocol == null ? "protocol: null" : "protocol: " + this.protocol) + "\n";
+        return buffer;
+    }
+    
+    //Begin of property window support
+    @XmlTransient
+    private final Binding conn = this;
+    
+    public Node getNode(){
+        return node;
     }
 
+    @XmlTransient
+    private final Node node = new AbstractNode(Children.LEAF) {
+
+        @Override
+        protected Sheet createSheet() {
+            Sheet sheet = Sheet.createDefault();
+            Sheet.Set set = Sheet.createPropertiesSet();
+            //set.setName("Connection Properies");
+            try {
+                Node.Property protocolProp = new PropertySupport.Reflection(conn, String.class, "getProtocol", "setProtocol");
+                protocolProp.setName("Protocol");
+                set.put(protocolProp);
+            } catch (NoSuchMethodException ex) {
+                ErrorManager.getDefault();
+            }
+            sheet.put(set);
+            return sheet;
+        }
+    };
+    //End of property window support
+    
+    //Stage Labelling Support
+    @XmlTransient
+    private final Set<ChangeListener> listeners = new HashSet<>();
+    
+    
+    public void registerChangeListener(ChangeListener cl) {
+        listeners.add(cl);
+    }
+    
+    
+    public void fireChangeHappenned() {
+        for (ChangeListener listener : listeners) {
+            listener.stateChanged(new ChangeEvent(this));
+        }
+    }
 }
