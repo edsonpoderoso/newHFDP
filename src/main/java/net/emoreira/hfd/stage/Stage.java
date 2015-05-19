@@ -33,7 +33,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
+import net.emoreira.hfd.HFDComponentFlavor;
 import net.emoreira.hfd.HFDStageElementFlavor;
+import net.emoreira.hfd.HFDSubarchFlavor;
 import net.emoreira.hfd.model.Binding;
 import net.emoreira.hfd.model.Component;
 import net.emoreira.hfd.model.HFDStageElement;
@@ -74,7 +76,7 @@ import org.openide.windows.OutputWriter;
  * @author edson
  */
 public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> implements UndoRedo.Provider {
-    
+
     //Prefix
     private final String COMPONENT_ID_PREFIX = "comp ";
     private final String SUBARCH_ID_PREFIX = "suba ";
@@ -86,7 +88,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     private final int PROVIDER_PIN_SIZE = 0;
     //Scene Layers 
     private final LayerWidget dropLayer = new LayerWidget(this);
-    private final LayerWidget archLayer = new LayerWidget(this);
+    private final LayerWidget subarchLayer = new LayerWidget(this);
     private final LayerWidget componentsLayer = new LayerWidget(this);
     private final LayerWidget edgesLayer = new LayerWidget(this);
     private final LayerWidget sateliteLayer = new LayerWidget(this);
@@ -102,6 +104,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     private long subArchIdTracker = 1000;
     private long interfaceIdTracker = 1000;
 
+    //temporary util
+    OutputWriter out = IOProvider.getDefault().getStdOut();
+
     public void setCallback(MultiViewElementCallback callback) {
         this.callback = callback;
     }
@@ -109,6 +114,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     //Widget Action Providers
     private final ConnectProvider myConnectProvider = new ConnectProvider() {
         @Override
+
         public boolean isSourceWidget(Widget widget) {
             Collection<Binding> edges = Stage.this.getEdges();
             for (Binding edge : edges) {
@@ -187,10 +193,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
                 undone.put(object, entry.getValue());
                 done.put(object, entry.getKey().getLocation());
             }
-            undoRedo.addEdit(new MoveWidgetEdit(undone, done));
-
             originals.clear();
             original = null;
+            undoRedo.addEdit(new MoveWidgetEdit(undone, done));
         }
 
         @Override
@@ -207,11 +212,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
                 Point point = entry.getValue();
                 entry.getKey().setPreferredLocation(new Point(point.x + dx, point.y + dy));
             }
-
         }
-
     };
-
+    //algum problema no select provider
     private final SelectProvider mySelectProvider = new SelectProvider() {
         List<Node> nodes = new ArrayList<Node>();
 
@@ -245,6 +248,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
                 }
             }
             selectionChanged();
+//            if (widget != Stage.this) {
+//                Stage.this.setSelectedObjects(Collections.singleton(findObject(widget)));
+//            }
         }
 
         private void selectionChanged() {
@@ -269,40 +275,71 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             }
         }
     };
-
+    
+    //needs to be cleaned and leaner
     private final AcceptProvider myAcceptProvider = new AcceptProvider() {
 
         @Override
         public ConnectorState isAcceptable(Widget widget, Point point, Transferable t) {
-            if (widget == Stage.this && t.isDataFlavorSupported(HFDStageElementFlavor.HFDELEMENT_FLAVOR)) {
-                return ConnectorState.ACCEPT;
-            } else {
-                return ConnectorState.REJECT;
+            out.println("Data Flavor: \n HFD_COMPONENT_FLAVOR:"
+                    + t.isDataFlavorSupported(HFDComponentFlavor.HFD_COMPONENT_FLAVOR)
+                    + "\n HFD_SUBARCH_FLAVOR"
+                    + t.isDataFlavorSupported(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR));
+            if (widget != Stage.this) {
+                return ConnectorState.REJECT_AND_STOP;
             }
+
+            if (t.isDataFlavorSupported(HFDComponentFlavor.HFD_COMPONENT_FLAVOR)) {
+                List<Widget> subarchsWidgets = subarchLayer.getChildren();
+                Widget top = null;
+                for (Widget w : subarchsWidgets) {
+                    if (w.isHitAt(w.convertSceneToLocal(point))) {
+                        return ConnectorState.ACCEPT;
+                    }
+                }
+            }
+
+            if (t.isDataFlavorSupported(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR)) {
+                return ConnectorState.ACCEPT;
+            }
+            return ConnectorState.REJECT;
         }
+        
 
         @Override
-        public void accept(Widget widget, Point point, Transferable t
-        ) {
+        public void accept(Widget widget, Point point, Transferable t) {
             try {
-                HFDStageElement hfdElement = (HFDStageElement) t.getTransferData(HFDStageElementFlavor.HFDELEMENT_FLAVOR);
-                hfdElement.setPosition((Point)point.clone());
+                HFDStageElement hfdElement;
                 Set<HFDStageElement> set = new HashSet<>();
-                if (hfdElement.isComponent()) {
-                    Component component = hfdElement.asComponent();
+                if (t.isDataFlavorSupported(HFDComponentFlavor.HFD_COMPONENT_FLAVOR)) {
+                    Component component = (Component) t.getTransferData(HFDComponentFlavor.HFD_COMPONENT_FLAVOR);
                     component.setId(COMPONENT_ID_PREFIX + componentIdTracker++);
                     List<Interface> providedInterface = component.getProvidedInterface();
-                    for(Interface p:providedInterface){
+                    for (Interface p : providedInterface) {
                         p.setId(INTERFACE_ID_PREFIX + interfaceIdTracker++);
                     }
                     List<Interface> requiredInterface = component.getRequiredInterface();
-                    for(Interface r:requiredInterface){
+                    for (Interface r : requiredInterface) {
                         r.setId(INTERFACE_ID_PREFIX + interfaceIdTracker++);
                     }
-                    
+                    //set parent
+                    List<Widget> subarchsWidgets = subarchLayer.getChildren();
+                    Widget top = null;
+                    for (Widget w : subarchsWidgets) {
+                        if (w.isHitAt(w.convertSceneToLocal(point))) {
+                            top = w;
+                        }
+                    }
+                    component.setParent((Subarch)findObject(top));
+                    //end of set parent
+                    hfdElement = component;
+                } else if (t.isDataFlavorSupported(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR)) {
+                    Subarch suba = (Subarch) t.getTransferData(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR);
+                    hfdElement = suba;
                 } else {
-                    hfdElement.asSubarch().setId(SUBARCH_ID_PREFIX + subArchIdTracker++);
+                    return;
                 }
+                hfdElement.setPosition((Point) point.clone());
                 set.add(hfdElement);
                 undoRedo.addEdit(new AddElementsEdit(set));
                 callback.getTopComponent().requestActive();
@@ -326,7 +363,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         @Override
         public void resizingFinished(Widget widget) {
             Rectangle newBounds = widget.getBounds();
-            assert newBounds  != null;
+            assert newBounds != null;
             Point nbPos = newBounds.getLocation();
             Point correctedPosition = new Point((int) (originalPosition.getX() + nbPos.getX()), (int) (originalPosition.getY() + nbPos.getY()));
             widget.setPreferredLocation(correctedPosition);
@@ -334,7 +371,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             widget.setPreferredBounds(correctedBounds);
             Subarch sa = (Subarch) Stage.this.findObject(widget);
             sa.setDimension(correctedBounds.getSize());
-            sa.setPosition((Point)correctedPosition.clone());
+            sa.setPosition((Point) correctedPosition.clone());
             undoRedo.addEdit(new ResizeEdit((HFDStageElement) Stage.this.findObject(widget), originalPosition, originalBounds, correctedPosition, correctedBounds));
         }
     };
@@ -405,7 +442,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     public Stage() {
         super();
         //Configures the layers on the scene
-        this.addChild(archLayer);
+        this.addChild(subarchLayer);
         this.addChild(componentsLayer);
         this.addChild(edgesLayer);
         this.addChild(dropLayer);
@@ -424,13 +461,11 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 
     //This method adds a new node while creates its pins
     public void myAddNode(HFDStageElement element) {
-        OutputWriter out = IOProvider.getDefault().getStdOut();
         assert element != null;
         if (element.isComponent()) {
             Component component = element.asComponent();
-            out.print(component.toString());
             Set<Interface> Pins = new HashSet<Interface>();
-            
+
             //creating pins
             List<Interface> providedInterfaces = component.getProvidedInterface();
             for (Interface e : providedInterfaces) {
@@ -440,7 +475,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             for (Interface e : requiredInterfaces) {
                 Pins.add(e);
             }
-            
+
             //adding node and pins
             Widget widget = addNode(element);
             assert widget != null;
@@ -454,15 +489,15 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 
     //this method  adds a new edge while creating its label
     public void myAddEdge(Binding e) {
-        assert e != null: "The parameter of myAddEdge cannot be null";
+        assert e != null : "The parameter of myAddEdge cannot be null";
         ConnectionWidget w = (ConnectionWidget) this.addEdge(e);
-        Interface sourcePin = (Interface)e.getClientInterface();
-        Interface targetPin = (Interface)e.getServerInterface();
+        Interface sourcePin = (Interface) e.getClientInterface();
+        Interface targetPin = (Interface) e.getServerInterface();
         this.setEdgeSource(e, sourcePin);
         this.setEdgeTarget(e, targetPin);
 
         //Label Making
-        LabelWidget label1 = new LabelWidget(this, e.getProtocol() == null? "": e.getProtocol());
+        LabelWidget label1 = new LabelWidget(this, e.getProtocol() == null ? "" : e.getProtocol());
         label1.setOpaque(false);
         w.addChild(label1);
         w.setConstraint(label1, LayoutFactory.ConnectionWidgetLayoutAlignment.TOP_CENTER, 0.5f);
@@ -482,27 +517,27 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     private void syncWidgetPosition(HFDStageElement element) {
         Widget widget = this.findWidget(element);
         assert widget != null;
-        widget.setPreferredLocation(element.getPosition().isPresent()? element.getPosition().get(): new Point());
+        widget.setPreferredLocation(element.getPosition().isPresent() ? element.getPosition().get() : new Point());
     }
 
     @Override
     protected Widget attachNodeWidget(HFDStageElement n) {
         assert n != null;
         Widget widget;
-        Point pos = n.getPosition().isPresent()? n.getPosition().get(): new Point();
+        Point pos = n.getPosition().isPresent() ? n.getPosition().get() : new Point();
         if (n.isComponent()) {
             Component component = n.asComponent();
             widget = new StageComponentWidget(this, component);
             componentsLayer.addChild(widget);
         } else {
             widget = new ModelSubarchWidget(this, n.asSubarch());
-            archLayer.addChild(widget);
+            subarchLayer.addChild(widget);
             widget.getActions().addAction(ActionFactory.createResizeAction(ActionFactory.createFreeResizeStategy(),
                     ActionFactory.createDefaultResizeControlPointResolver(),
                     myResizeProvider
             ));
         }
-        
+
         widget.getActions().addAction(ActionFactory.createSelectAction(mySelectProvider));
         widget.getActions().addAction(ActionFactory.createMoveAction(null, myMultiMoveProvider));
         widget.setPreferredLocation(pos);
@@ -522,29 +557,6 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         edgesLayer.addChild(widget);
         return widget;
     }
-
-    //this helper method is used for finding sources and target objects for edges
-//    private Component getComponentById(long id) {
-//        Set<?> elements = this.getObjects();
-//        for (Object o : elements) {
-//            if (o instanceof Component
-//                    && ((Component) o).getId() == id) {
-//                return (Component) o;
-//            }
-//        }
-//        throw new IllegalArgumentException("The component with the given id is not present on the scene");
-//    }
-
-    //this helper method find a model Pin by its parent Component and its interface
-//    private Interface getNodePinByInterface(Component n, String inter, Interface.InterfaceType type) {
-//        Collection<Interface> pins = this.getNodePins(n);
-//        for (Interface p : pins) {
-//            if (p.getType().equals(type) && p.getInter().equals(inter)) {
-//                return p;
-//            }
-//        }
-//        throw new IllegalArgumentException("The given arguments do not match a single Pin on the scene");
-//    }
 
     @Override
     protected Widget attachPinWidget(HFDStageElement n, Interface p) {
@@ -600,34 +612,34 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         long maxC = 0;
         long maxS = 0;
         long maxI = 0;
-        for(HFDStageElement node:nodes){
-            if(node.isComponent()){
+        for (HFDStageElement node : nodes) {
+            if (node.isComponent()) {
                 Component comp = node.asComponent();
                 String c_id = comp.getId();
                 int compIdNumber = Integer.parseInt(c_id.replaceAll("[^0-9]", ""));
                 maxC = max(compIdNumber, maxC);
                 List<Interface> provInterfaces = comp.getProvidedInterface();
-                for(Interface in:provInterfaces){
+                for (Interface in : provInterfaces) {
                     String in_id = in.getId();
                     int interIdNumber = Integer.parseInt(in_id.replaceAll("[^0-9]", ""));
                     maxI = max(interIdNumber, maxI);
                 }
                 List<Interface> reqInterfaces = comp.getRequiredInterface();
-                for(Interface in:reqInterfaces){
+                for (Interface in : reqInterfaces) {
                     String in_id = in.getId();
                     int interIdNumber = Integer.parseInt(in_id.replaceAll("[^0-9]", ""));
                     maxI = max(interIdNumber, maxI);
                 }
             }
-            if(node.isSubarch()){
+            if (node.isSubarch()) {
                 String s_id = node.asSubarch().getId();
                 int subaIdNumber = Integer.parseInt(s_id.replaceAll("[^0-9]", ""));
                 maxS = max(subaIdNumber, maxS);
             }
         }
-        subArchIdTracker = maxS+1;
-        componentIdTracker = maxC+1;
-        interfaceIdTracker = maxI+1;
+        subArchIdTracker = maxS + 1;
+        componentIdTracker = maxC + 1;
+        interfaceIdTracker = maxI + 1;
         //undoRedo.discardAllEdits();
     }
 
@@ -658,7 +670,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         public void undo() throws CannotUndoException {
             super.undo(); //To change body of generated methods, choose Tools | Templates.
             element.setDimension(undoneBounds.getSize());
-            element.setPosition((Point)undonePosition.clone());
+            element.setPosition((Point) undonePosition.clone());
             widget = Stage.this.findWidget(element);
             widget.setPreferredBounds((Rectangle) undoneBounds.clone());
             widget.setPreferredLocation((Point) undonePosition.clone());
@@ -668,7 +680,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         public void redo() throws CannotRedoException {
             super.redo(); //To change body of generated methods, choose Tools | Templates.
             element.setDimension(doneBounds.getSize());
-            element.setPosition((Point)donePosition.clone());
+            element.setPosition((Point) donePosition.clone());
             widget = Stage.this.findWidget(element);
             widget.setPreferredBounds((Rectangle) doneBounds.clone());
             widget.setPreferredLocation((Point) donePosition.clone());
@@ -704,7 +716,6 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 //        }
 //
 //    }
-
     private final class AddEdgeEdit implements UndoableEdit {
 
         boolean alive = true;
@@ -898,7 +909,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 
         @Override
         public void redo() throws CannotRedoException {
-            super.redo(); 
+            super.redo();
             for (Map.Entry<Object, Point> e : post.entrySet()) {
                 Widget widget = Stage.this.findWidget(e.getKey());
                 widget.setPreferredLocation(e.getValue());
@@ -976,30 +987,28 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 
     //Anchor for connections
     private class EditorAnchor extends Anchor {
+
         int gap = 7;
-        
-        EditorAnchor(Widget widget, int gap){
+
+        EditorAnchor(Widget widget, int gap) {
             super(widget);
             this.gap = gap;
         }
-        
+
         @Override
         public Result compute(Entry entry) {
             Widget widget = getRelatedWidget();
             Rectangle bounds = widget.convertLocalToScene(widget.getBounds());
             Point center = getCenter(bounds);
-            return new Anchor.Result (new Point (center.x + gap, center.y), Direction.RIGHT);
+            return new Anchor.Result(new Point(center.x + gap, center.y), Direction.RIGHT);
         }
-        
 
         private Point getCenter(Rectangle bounds) {
-            double  x = bounds.getX() + (bounds.getMaxX() - bounds.getMinX())/2;
-            double y = bounds.getY() + (bounds.getMaxY() - bounds.getMinY())/2;
-            return new Point((int)x,(int)y);
+            double x = bounds.getX() + (bounds.getMaxX() - bounds.getMinX()) / 2;
+            double y = bounds.getY() + (bounds.getMaxY() - bounds.getMinY()) / 2;
+            return new Point((int) x, (int) y);
         }
 
     }
-    
-    
 
 }

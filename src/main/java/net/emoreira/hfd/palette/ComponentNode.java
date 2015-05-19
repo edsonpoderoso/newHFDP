@@ -9,10 +9,11 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.List;
-import net.emoreira.hfd.HFDStageElementFlavor;
+import net.emoreira.hfd.HFDComponentFlavor;
 import net.emoreira.hfd.model.Component;
 import net.emoreira.hfd.model.HFDStageElement;
 import net.emoreira.hfd.model.Interface;
+import net.emoreira.hfd.myTransferable;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
@@ -55,11 +56,11 @@ public class ComponentNode extends AbstractNode{
 
     @Override
     public Transferable clipboardCopy() throws IOException {
-        Transferable answer = new ExTransferable.Single(HFDStageElementFlavor.HFDELEMENT_FLAVOR) {
+        Transferable answer = new myTransferable(HFDComponentFlavor.HFD_COMPONENT_FLAVOR) {
 
             @Override
             protected Object getData() throws IOException, UnsupportedFlavorException {
-                return getHFDStageElement();
+                return getHFDStageElement().asComponent();
             }
         };
         return answer;

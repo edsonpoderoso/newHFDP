@@ -11,8 +11,10 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import net.emoreira.hfd.HFDStageElementFlavor;
+import net.emoreira.hfd.HFDSubarchFlavor;
 import net.emoreira.hfd.model.HFDStageElement;
 import net.emoreira.hfd.model.Subarch;
+import net.emoreira.hfd.myTransferable;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
@@ -50,10 +52,10 @@ class SubarchNode extends AbstractNode {
 
     @Override
     public Transferable clipboardCopy() throws IOException {
-        Transferable answer = new ExTransferable.Single(HFDStageElementFlavor.HFDELEMENT_FLAVOR) {
+        Transferable answer = new myTransferable(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR) {
             @Override
             protected Object getData() throws IOException, UnsupportedFlavorException {
-                return getHfdStageElement();
+                return getHfdStageElement().asSubarch();
             }
         };
         return answer;
