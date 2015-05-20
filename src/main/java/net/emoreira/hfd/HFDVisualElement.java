@@ -47,6 +47,7 @@ import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.IOProvider;
 import org.openide.windows.OutputWriter;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_hfd_VISUAL",
@@ -184,7 +185,8 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
     @Override
     public void componentOpened() {
         //example of naming the component in bold face
-        callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
+        callback.getTopComponent().setHtmlDisplayName("<html><body>" + obj.getName() + "</body></html>");
+        WindowManager.getDefault().findTopComponent("properties").open();
 
         //Read the Hfd file to the Hfd object;
         Optional<Hfd> temp = fileHandler.readFile(obj.getPrimaryFile());
