@@ -26,7 +26,7 @@ import org.openide.nodes.Sheet;
  *
  * @author edson
  */
-public class ModelSubarchWidget extends Widget {
+public class StageSubarchWidget extends Widget {
 
     private final int BASE_SIZE = 300;
     private final int INTERFACES_IDENT = 5;
@@ -36,7 +36,7 @@ public class ModelSubarchWidget extends Widget {
     private final Color foregroundColor = Color.BLACK;
     private final Subarch subarch;
 
-    public ModelSubarchWidget(Scene scene, Subarch subArchitecture) {
+    public StageSubarchWidget(Scene scene, Subarch subArchitecture) {
         super(scene);
         this.subarch = subArchitecture;
         setPreferredBounds(new Rectangle(subArchitecture.getDimension().isPresent()? subArchitecture.getDimension().get(): new Dimension(BASE_SIZE, BASE_SIZE)));

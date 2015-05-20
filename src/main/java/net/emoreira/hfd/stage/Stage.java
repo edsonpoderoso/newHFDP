@@ -86,6 +86,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     private final int ARROW_DEGREES = 40;
     private final int ARROW_SIZE = 12;
     private final int PROVIDER_PIN_SIZE = 0;
+    
     //Scene Layers 
     private final LayerWidget dropLayer = new LayerWidget(this);
     private final LayerWidget subarchLayer = new LayerWidget(this);
@@ -214,7 +215,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             }
         }
     };
-    //algum problema no select provider
+    
+
+    //Select provider já seleciona os subitens OK
     private final SelectProvider mySelectProvider = new SelectProvider() {
         List<Node> nodes = new ArrayList<Node>();
 
@@ -230,22 +233,26 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
 
         @Override
         public void select(Widget widget, Point point, boolean invertSelection) {
-            Set<?> oldSelection = Stage.this.getSelectedObjects();
-            Set<?> newSelection;
-
             if (widget == Stage.this) {
                 Stage.this.setSelectedObjects(Collections.EMPTY_SET);
             } else {
                 Object object = findObject(widget);
                 setFocusedObject(object);
-                if (object != null) {
-                    if (!invertSelection && getSelectedObjects().contains(object)) {
-                        return;
-                    }
-                    userSelectionSuggested(Collections.singleton(object), invertSelection);
-                } else {
-                    userSelectionSuggested(Collections.emptySet(), invertSelection);
+                Set selectionSet = Collections.emptySet();
+                if (!invertSelection && getSelectedObjects().contains(object)) {
+                    return;
                 }
+                if (object instanceof Subarch) {
+                    selectionSet = new HashSet();
+                    selectionSet.add(object);
+                    selectionSet.addAll(((Subarch) object).getComponent());
+                } else if(object != null){
+                    selectionSet = Collections.singleton(object);
+                }else{
+                    return;
+                }
+                userSelectionSuggested(selectionSet, invertSelection);
+                
             }
             selectionChanged();
 //            if (widget != Stage.this) {
@@ -275,8 +282,8 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             }
         }
     };
-    
-    //needs to be cleaned and leaner
+
+    //needs to be cleaned and leaner - need to resize SubarcWidget
     private final AcceptProvider myAcceptProvider = new AcceptProvider() {
 
         @Override
@@ -304,42 +311,39 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             }
             return ConnectorState.REJECT;
         }
-        
 
         @Override
         public void accept(Widget widget, Point point, Transferable t) {
             try {
+                Component c1 = null;
+                Subarch s1 = null;
+                if(t.isDataFlavorSupported(HFDComponentFlavor.HFD_COMPONENT_FLAVOR)){
+                    c1 = (Component) t.getTransferData(HFDComponentFlavor.HFD_COMPONENT_FLAVOR);
+                }
+                if(t.isDataFlavorSupported(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR)){
+                    s1 = (Subarch) t.getTransferData(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR);
+                }
                 HFDStageElement hfdElement;
+                if(s1 != null || c1 != null){
+                hfdElement = c1 == null? s1: c1;    
+                }else{
+                    throw new IllegalArgumentException("Transferable doesn't represents Subarch nor Component");
+                }
+                hfdElement.setPosition((Point)point.clone());
                 Set<HFDStageElement> set = new HashSet<>();
-                if (t.isDataFlavorSupported(HFDComponentFlavor.HFD_COMPONENT_FLAVOR)) {
-                    Component component = (Component) t.getTransferData(HFDComponentFlavor.HFD_COMPONENT_FLAVOR);
-                    component.setId(COMPONENT_ID_PREFIX + componentIdTracker++);
-                    List<Interface> providedInterface = component.getProvidedInterface();
+                if (hfdElement.isComponent()) {
+                    hfdElement.asComponent().setId(COMPONENT_ID_PREFIX + componentIdTracker++);
+                    List<Interface> providedInterface = hfdElement.asComponent().getProvidedInterface();
                     for (Interface p : providedInterface) {
                         p.setId(INTERFACE_ID_PREFIX + interfaceIdTracker++);
                     }
-                    List<Interface> requiredInterface = component.getRequiredInterface();
+                    List<Interface> requiredInterface = hfdElement.asComponent().getRequiredInterface();
                     for (Interface r : requiredInterface) {
                         r.setId(INTERFACE_ID_PREFIX + interfaceIdTracker++);
                     }
-                    //set parent
-                    List<Widget> subarchsWidgets = subarchLayer.getChildren();
-                    Widget top = null;
-                    for (Widget w : subarchsWidgets) {
-                        if (w.isHitAt(w.convertSceneToLocal(point))) {
-                            top = w;
-                        }
-                    }
-                    component.setParent((Subarch)findObject(top));
-                    //end of set parent
-                    hfdElement = component;
-                } else if (t.isDataFlavorSupported(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR)) {
-                    Subarch suba = (Subarch) t.getTransferData(HFDSubarchFlavor.HFD_SUBARCH_FLAVOR);
-                    hfdElement = suba;
                 } else {
-                    return;
+                    hfdElement.asSubarch().setId(SUBARCH_ID_PREFIX + subArchIdTracker++);
                 }
-                hfdElement.setPosition((Point) point.clone());
                 set.add(hfdElement);
                 undoRedo.addEdit(new AddElementsEdit(set));
                 callback.getTopComponent().requestActive();
@@ -423,7 +427,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         }
     };
 
-    //Label handler for connections (NOT THE BEST WAY TO DO IT BUT IT WORKS)
+    //Label handler for bindings (NOT THE BEST WAY TO DO IT BUT IT WORKS)
     private final Map<Binding, LabelWidget> ConToLabel = new HashMap<Binding, LabelWidget>();
     private final ChangeListener connectionChangeListener = new ChangeListener() {
 
@@ -454,9 +458,9 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         this.getActions().addAction(ActionFactory.createSelectAction(mySelectProvider));
         this.getActions().addAction(ActionFactory.createAcceptAction(myAcceptProvider));
         this.getActions().addAction(ActionFactory.createPopupMenuAction(myPopupMenuProvider));
-        this.getActions().addAction(ActionFactory.createRectangularSelectAction(myRectangularSelectDecorator,
-                sateliteLayer,
-                ActionFactory.createObjectSceneRectangularSelectProvider(this)));
+//        this.getActions().addAction(ActionFactory.createRectangularSelectAction(myRectangularSelectDecorator,
+//                sateliteLayer,
+//                ActionFactory.createObjectSceneRectangularSelectProvider(this)));
     }
 
     //This method adds a new node while creates its pins
@@ -530,7 +534,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             widget = new StageComponentWidget(this, component);
             componentsLayer.addChild(widget);
         } else {
-            widget = new ModelSubarchWidget(this, n.asSubarch());
+            widget = new StageSubarchWidget(this, n.asSubarch());
             subarchLayer.addChild(widget);
             widget.getActions().addAction(ActionFactory.createResizeAction(ActionFactory.createFreeResizeStategy(),
                     ActionFactory.createDefaultResizeControlPointResolver(),
@@ -687,35 +691,6 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         }
     }
 
-//    private final class SelectEdit extends AbstractUndoableEdit {
-//
-//        Set<?> oldSelection;
-//        Set<?> newSelection;
-//
-//        public SelectEdit(Set<?> oldSelection, Set<?> newSelection) {
-//            super();
-//            this.oldSelection = oldSelection;
-//            this.newSelection = newSelection;
-//        }
-//
-//        @Override
-//        public String getPresentationName() {
-//            return "Selection change";
-//        }
-//
-//        @Override
-//        public void undo() throws CannotUndoException {
-//            super.undo(); //To change body of generated methods, choose Tools | Templates.
-//            Stage.this.setSelectedObjects(oldSelection);
-//        }
-//
-//        @Override
-//        public void redo() throws CannotRedoException {
-//            super.redo(); //To change body of generated methods, choose Tools | Templates.
-//            Stage.this.setSelectedObjects(newSelection);
-//        }
-//
-//    }
     private final class AddEdgeEdit implements UndoableEdit {
 
         boolean alive = true;
@@ -813,6 +788,11 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         public void undo() throws CannotUndoException {
             if (canUndo()) {
                 for (HFDStageElement element : elements) {
+                    if(element.isComponent()){
+                        Subarch parent = (Subarch) element.asComponent().getParent().get();
+                        parent.getComponent().remove(element);
+                        element.asComponent().setParent(null);
+                    }
                     Stage.this.removeNode(element);
                 }
                 done = false;
@@ -830,6 +810,20 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         public void redo() throws CannotRedoException {
             if (canRedo()) {
                 for (HFDStageElement element : elements) {
+                    if(element.isComponent()){
+                    //set parent
+                    List<Widget> subarchsWidgets = subarchLayer.getChildren();
+                    Widget top = null;
+                    for (Widget w : subarchsWidgets) {
+                        if (w.isHitAt(w.convertSceneToLocal(element.getPosition().get()))) {
+                            top = w;
+                        }
+                    }
+                    Subarch sa = (Subarch) findObject(top);
+                    sa.getComponent().add(element.asComponent());
+                    element.asComponent().setParent(sa);
+                    //end of set parent
+                    }
                     Stage.this.myAddNode(element);
                 }
                 this.done = true;
@@ -922,46 +916,30 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
     private final class DeleteEdit extends AbstractUndoableEdit {
 
         Set<Object> set = new HashSet<>();
-        Set<Binding> connections = new HashSet<>();
+        Set<Binding> bindings = new HashSet<>();
         Set<HFDStageElement> nodes = new HashSet<>();
 
         public DeleteEdit() {
             Set<?> selected = Stage.this.getSelectedObjects();
             for (Object o : selected) {
                 set.add(o);
-            }
-            for (Object e : set) {
-                if (e instanceof Binding) {
-                    connections.add((Binding) e);
-                    Stage.this.removeEdge((Binding) e);
-                } else if (e instanceof HFDStageElement) {
-                    HFDStageElement element = (HFDStageElement) e;
-                    nodes.add(element);
+                if(o instanceof Subarch){
+                    set.addAll(((Subarch)o).getComponent());
                 }
             }
-            //Performance wise nodes should be removed after connections, otherwise you have to check if the connection is still on the scene
-            for (HFDStageElement n : nodes) {
-                if (n.isComponent()) {
-                    Collection<Interface> pins = Stage.this.getNodePins(n);
-                    pins = (pins == null ? Collections.EMPTY_SET : pins);
-                    for (Interface p : pins) {
-                        Collection<Binding> edges;
-                        edges = findPinEdges(p, true, true);
-                        connections.addAll(edges);
-                    }
-                }
-                Stage.this.removeNodeWithEdges(n);
-            }
-
+            removeObjects();
         }
 
         @Override
         public void undo() throws CannotUndoException {
             super.undo(); //To change body of generated methods, choose Tools | Templates.
             for (HFDStageElement e : nodes) {
+                if(e.isComponent()){
+                    e.asComponent().getParent().get().getComponent().add(e.asComponent());
+                }
                 myAddNode(e);
             }
-            for (Binding c : connections) {
+            for (Binding c : bindings) {
                 myAddEdge(c);
             }
         }
@@ -969,13 +947,7 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
         @Override
         public void redo() throws CannotRedoException {
             super.redo();
-            for (Binding c : connections) {
-                Stage.this.removeEdge(c);
-            }
-            for (HFDStageElement e : nodes) {
-                Stage.this.removeNodeWithEdges(e);
-            }
-
+            removeObjects();
         }
 
         @Override
@@ -983,9 +955,35 @@ public class Stage extends GraphPinScene<HFDStageElement, Binding, Interface> im
             return "delete selected";
         }
 
+        private void removeObjects() {
+            for (Object e : set) {
+                if (e instanceof Binding) {
+                    bindings.add((Binding) e);
+                    Stage.this.removeEdge((Binding) e);
+                } else if (e instanceof HFDStageElement) {
+                    HFDStageElement element = (HFDStageElement) e;
+                    nodes.add(element);
+                }
+            }
+            //Performance wise nodes should be removed after bindings, otherwise you have to check if the connection is still on the scene
+            for (HFDStageElement n : nodes) {
+                if (n.isComponent()) {
+                    n.asComponent().getParent().get().getComponent().remove(n);
+                    Collection<Interface> pins = Stage.this.getNodePins(n);
+                    pins = (pins == null ? Collections.EMPTY_SET : pins);
+                    for (Interface p : pins) {
+                        Collection<Binding> edges;
+                        edges = findPinEdges(p, true, true);
+                        bindings.addAll(edges);
+                    }
+                }
+                Stage.this.removeNodeWithEdges(n);
+            }
+        }
+
     }
 
-    //Anchor for connections
+    //Anchor for bindings
     private class EditorAnchor extends Anchor {
 
         int gap = 7;

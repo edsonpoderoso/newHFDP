@@ -10,7 +10,9 @@ import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -248,19 +250,19 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
     private void setModified(boolean modified) {
         this.modified = modified;
-        AdjustEditorNameApperance();
+        //AdjustEditorNameApperance();
         //TODO create a savable
     }
     
     
     
-    private void AdjustEditorNameApperance() {
-        if (modified) {
-            callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
-        } else {
-            callback.getTopComponent().setHtmlDisplayName("<html><body>" + obj.getName() + "</body></html>");
-        }
-    }
+//    private void AdjustEditorNameApperance() {
+//        if (modified) {
+//            callback.getTopComponent().setHtmlDisplayName("<html><body><strong>" + obj.getName() + "</strong></body></html>");
+//        } else {
+//            callback.getTopComponent().setHtmlDisplayName("<html><body>" + obj.getName() + "</body></html>");
+//        }
+//    }
     
     /**
      * Initializes the side palette
@@ -285,53 +287,27 @@ public final class HFDVisualElement extends JPanel implements MultiViewElement {
 
         @Override
         protected void handleSave() throws IOException {
-//            Set<?> elements = sc.getObjects();
-//            Set<Subarch> subArchs = new HashSet<>();
-//            Set<Component> components = new HashSet<>();
-//            Set<Binding> connections = new HashSet<>();
-//            for (Object e : elements) {
-//                if (e instanceof Subarch) {
-//                    subArchs.add((Subarch) e);
-//                    continue;
-//                }
-//                if (e instanceof Component) {
-//                    components.add((Component) e);
-//                    continue;
-//                }
-//                if (e instanceof Binding) {
-//                    connections.add((Binding) e);
-//                }
-//            }
-//            document.getComponent().clear();
-//            document.getSubarchitecture().clear();
-//            document.getConnection().clear();
-//            
-//            document.getComponent().addAll(components);
-//            document.getSubarchitecture().addAll(subArchs);
-//            document.getConnection().addAll(connections);
-//
-//            FileObject file = obj.getPrimaryFile();
-//            FileLock lock = null;
-//            OutputStream os = null;
-//            try {
-//                lock = file.lock();
-//                os = obj.getPrimaryFile().getOutputStream(lock);
-//                Marshaller m = jaxbArchitechtureContext.createMarshaller();
-//                m.marshal(document, os);
-//                IOProvider.getDefault().getStdOut().println("Salvou!");
-//            } catch (JAXBException ex) {
-//                Exceptions.printStackTrace(ex);
-//            } catch (IOException ex) {
-//                Exceptions.printStackTrace(ex);
-//            } finally {
-//                if (os != null) {
-//                    os.close();
-//                }
-//                if (lock != null) {
-//                    lock.releaseLock();
-//                }
-//            }
+            Set<?> elements = stage.getObjects();
+            Set<Subarch> subArchs = new HashSet<>();
+            Set<Binding> bindings = new HashSet<>();
+            for (Object e : elements) {
+                if (e instanceof Subarch) {
+                    subArchs.add((Subarch) e);
+                    continue;
+                }
+                if (e instanceof Binding) {
+                    bindings.add((Binding) e);
+                }
+            }
+            architecture.getBinding().clear();
+            architecture.getSubarch().clear();
+            
+            architecture.getSubarch().addAll(subArchs);
+            architecture.getBinding().addAll(bindings);
+
+            fileHandler.writeFile(hfd, obj.getPrimaryFile());
             HFDVisualElement.this.localLookupContent.remove(this);
+            setModified(false);
         }
 
         @Override
